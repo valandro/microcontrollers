@@ -1,0 +1,33 @@
+#+Title: Laboratórios de Micro controladores
+#+Author: Lucas Valandro da Rocha
+#+Email: lucas.valandrorocha@inf.ufrgs.br
+#+Language: pt
+
+* 2020-06-01
+** Setup do cartão microsd
+*** Download da imagem
+       
+    https://downloadmirror.intel.com/26418/eng/Galileo_Poky_SW_image_20160606.zip
+*** Descompactando arquivo no cartão microsd
+   MAC OSX
+    
+   diskutils list
+    
+   -  Ache o seu cartão sd, no meu caso, */dev/disk2*
+
+   - Instale o pacote coreutils através do HomeBrew
+
+   brew install coreutils
+
+   - Execute o seguinte comando
+
+   unzip -p Galileo...zip | sudo gdd of=/dev/disk2 bs=3m conv=sync status=progress
+
+   - Após a instalação, basta inserir o cartão na Galileo
+
+*** Boot da Galileo
+    
+    Após inserir o cartão SD e conectar sua placa no seu roteador, então é necessário encontrar sua Galileo
+    na rede local.
+
+
