@@ -4,10 +4,11 @@
 #+Language: pt
 
 * 2020-06-01
-** Setup do cartão microsd
+** Setup do cartão microSD
 *** Download da imagem
        
     https://downloadmirror.intel.com/26418/eng/Galileo_Poky_SW_image_20160606.zip
+
 *** Descompactando arquivo no cartão microsd
    MAC OSX
     
@@ -27,7 +28,23 @@
 
 *** Boot da Galileo
     
-    Após inserir o cartão SD e conectar sua placa no seu roteador, então é necessário encontrar sua Galileo
-    na rede local.
+   Após inserir o cartão SD e conectar sua placa no seu roteador,
+   então é necessário encontrar sua Galileo na rede local.
+
+   Para encontrar a Galileo na sua rede, você pode utilizar os seguintes comandos:
+
+   - Visualização da tabela ARP e procura do MAC addr da Galileo
+      
+   arp -a
+
+   - Procura pelo IP na rede
+
+   Instale o pacote ip via HomeBrew
+
+   brew install iproute2mac
+
+   Após instalação, basta:
+   
+   ip neighbor
 
 
