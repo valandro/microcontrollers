@@ -3,7 +3,7 @@
 #+Email: lucas.valandrorocha@inf.ufrgs.br
 #+Language: pt
 
-* 2020-06-01
+* LAB01 (2020-06-01 / 2020-06-04)
 ** Setup do cartão microSD
 *** Download da imagem
        
@@ -12,7 +12,7 @@
 *** Descompactando arquivo no cartão microsd
    MAC OSX
     
-   diskutils list
+   diskutil list
     
    -  Ache o seu cartão sd, no meu caso, */dev/disk2*
 
@@ -22,9 +22,14 @@
 
    - Execute o seguinte comando
 
-   unzip -p Galileo...zip | sudo gdd of=/dev/disk2 bs=3m conv=sync status=progress
+   unzip -p Galileo...zip | sudo gdd of=/dev/disk2 bs=3m conv=fsync status=progress
 
    - Após a instalação, basta inserir o cartão na Galileo
+
+   OBS.: Caso receba uma mensagem estilo "Resource busy", você deve
+   então:
+
+   diskutil unmountDisk force /dev/disk2
 
 *** Boot da Galileo
     
@@ -48,3 +53,23 @@
    ip neighbor
 
 
+*** Configuração de acesso rápido
+  
+  Após descobrir o IP da galileo em sua rede, é uma boa prática
+  configurar acesso via ssh de maneira rápida, para isso:
+
+  - Utilize o comando para gerar (caso não possua) uma chave pública
+
+  ssh-keygen 
+
+  - Copie essa chave para dentro da Galileo com o comando
+
+  scp ~/.ssh/id_rsa.pub root@<galileo-ip>
+
+  - Acesse a Galileo e guarde essa chave no local adequado
+
+  mkdir .ssh
+  
+  cat id_ras.pub >> .ssh/authorized_keys
+
+  - Feito, basta sair com o comando *exit*
