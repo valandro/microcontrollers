@@ -76,6 +76,110 @@
 
 * LAB02 (2020-06-06)
 ** Configuração do ambiente de desenvolvimento
-*** Download do Intel System Studio IoT Edition
+*** Download do Intel System Studio IoT Edition e configuração
 
   http://www.ece.ufrgs.br/~fetter/eng10032/iss-iot-linux_03-24-16.tar.bz2
+
+  - Descompacte o arquivo no diretorio /usr/local/opt
+
+  cd /usr/local/opt
+
+  - Dê permissões aos arquivos descompactados
+
+  chown -R (@your-user): iss-iot-linux
+
+  chmod -R go-w iss-iot-linux
+
+  chmod -R -s iss-iot-linux
+
+  (@your-user) = valandro, no meu caso. 
+
+  - Ainda no mesmo diretório crie um link para a versão atual do I.S.S
+    IoT
+
+  ln -s iss-iot-linux iot-devkit
+
+  - Crie um link para o diretório de ferramentas de desenvolvimento
+
+  cd iot-devkit
+  ln -s devkit-x86 1.7.2
+
+  - Instale o find do GNU
+
+  brew install findutils
+
+  - Alterar o arquivo *iot-devkit/sdk-relocator/relocate_sdk.sh*
+
+  De *find* para *gfind*
+
+  - Execute o comando utilizando o diretório que você instalou o ambiente
+
+  INSTALL_DIR="/Users/valandro/galileo/iot-devkit" sdk-relocator/relocate_sdk.sh
+
+  
+** Experimentos
+*** Configurando as variáveis de ambiente 
+
+  export DEVKIT=$HOME/galileo/iot-devkit/devkit-x86
+
+  export PATH=$PATH:$DEVKIT/sysroots/x86_64-pokysdk-linux/usr/bin/i586-poky-linux
+
+  export CROSS_COMPILE=i586-poky-linux-
+
+  export ARCH=x86
+
+*** Executando o primeiro programa na Galileo
+
+  Crie um diretório para salvar os primeiros arquivos do projeto.
+
+  Makefile
+
+  #+BEGIN_SRC C
+  TARGET=hello
+  SRCS=$(TARGET).c
+
+  FLAGS=-O2 -Wall -g -MMD
+  INCLUDE=-I.
+  LIBDIR=
+  LIBS=
+
+  CC=$(CROSS_COMPILE)gcc
+  CFLAGS=$(FLAGS) $(INCLUDE)
+  LDFLAGS=$(LIBDIR) $(LIBS)
+
+  all: $(TARGET)
+
+  $(TARGET): $(SRCS:.c=.o)
+		$(CC) -o $@ $^ $(LDFLAGS)
+
+  %.o: %.c
+		$(CC) $(CFLAGS) -c -o $@ $<
+
+  -include $(SRCS:.c=.d) 22
+  clean:
+		rm -f *~ *.bak *.o *.d
+
+  distclean: clean
+		rm -f $(TARGET)
+
+  #+END_SRC
+
+  hello.c
+
+  #+BEGIN_SRC C
+  #include <stdio.h>
+  int main(int argc, char *argv[]) {
+    printf("Hello, world!\n");
+
+    return 0;
+  }
+  #+END_SRC
+ 
+
+  Basta executar o comando *make*
+
+  Copie o executável para sua galileo através do comando
+
+  scp hello <user>@<ip>:
+
+  Entre na galileo e execute para constatar seu funcionamento
