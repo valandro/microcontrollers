@@ -10,7 +10,7 @@
     https://downloadmirror.intel.com/26418/eng/Galileo_Poky_SW_image_20160606.zip
 
 *** Descompactando arquivo no cartão microsd
-   MAC OSX
+  *MAC OSX*
     
    diskutil list
     
@@ -73,3 +73,9 @@
   cat id_ras.pub >> .ssh/authorized_keys
 
   - Feito, basta sair com o comando *exit*
+
+* LAB02 (2020-06-06)
+** Configuração do ambiente de desenvolvimento
+*** Download do Intel System Studio IoT Edition
+
+  http://www.ece.ufrgs.br/~fetter/eng10032/iss-iot-linux_03-24-16.tar.bz2
