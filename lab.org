@@ -78,21 +78,21 @@
 ** Configuração do ambiente de desenvolvimento
 *** Download do Intel System Studio IoT Edition e configuração
 
+  *Note: A partir daqui o tutorial está sendo executado em uma VM de Linux por questões de incompatibilidade com o MacOS*
+
   http://www.ece.ufrgs.br/~fetter/eng10032/iss-iot-linux_03-24-16.tar.bz2
 
-  - Descompacte o arquivo no diretorio /usr/local/opt
+  - Descompacte o arquivo no diretorio /opt
 
-  cd /usr/local/opt
+  cd /opt
 
   - Dê permissões aos arquivos descompactados
 
-  chown -R (@your-user): iss-iot-linux
+  chown -R root.root iss-iot-linux
 
   chmod -R go-w iss-iot-linux
 
   chmod -R -s iss-iot-linux
-
-  (@your-user) = valandro, no meu caso. 
 
   - Ainda no mesmo diretório crie um link para a versão atual do I.S.S
     IoT
@@ -104,10 +104,6 @@
   cd iot-devkit
   ln -s devkit-x86 1.7.2
 
-  - Instale o find do GNU
-
-  brew install findutils
-
   - Alterar o arquivo *iot-devkit/sdk-relocator/relocate_sdk.sh*
 
   De *find* para *gfind*
@@ -116,13 +112,12 @@
 
   INSTALL_DIR="/Users/valandro/galileo/iot-devkit" sdk-relocator/relocate_sdk.sh
 
-  
 ** Experimentos
 *** Configurando as variáveis de ambiente 
 
   export DEVKIT=$HOME/galileo/iot-devkit/devkit-x86
 
-  export PATH=$PATH:$DEVKIT/sysroots/x86_64-pokysdk-linux/usr/bin/i586-poky-linux
+  export PATH=$PATH:$DEVKIT/sysroots/x86_64-pokysdk-linux/usr/bin/i586-poky-linux/
 
   export CROSS_COMPILE=i586-poky-linux-
 
@@ -182,4 +177,49 @@
 
   scp hello <user>@<ip>:
 
-  Entre na galileo e execute para constatar seu funcionamento
+  Entre na galileo e execute para constatar seu funcionamento.
+
+*** Criando um segundo programa para a Galileo
+
+  A ideia é criar um hello world em C++, fazendo adaptações no
+  Makefile existente.
+
+  #+BEGIN_SRC C
+  TARGET=hello
+  SRCS=$(TARGET).cpp
+
+  FLAGS=-O2 -Wall -g -MMD
+  INCLUDE=-I.
+  LIBDIR=
+  LIBS=
+
+  CPP=$(CROSS_COMPILE)g++
+  CFLAGS=$(FLAGS) $(INCLUDE)
+  LDFLAGS=$(LIBDIR) $(LIBS)
+
+  all: $(TARGET)
+
+  $(TARGET): $(SRCS:.cpp=.out)
+		$(CPP) -o $@ $^ $(LDFLAGS)
+
+  %.out: %.cpp
+		$(CPP) $(CFLAGS) -c -o $@ $<
+
+  -include $(SRCS:.cpp=.d) 22
+
+  clean:
+		rm -f *~ *.out *.d
+
+  distclean: clean
+		rm -f $(TARGET)
+
+  #+END_SRC
+
+  #+BEGIN_SRC CPP
+  #include <iostream>
+
+  int main() {
+	std::cout << "Hello World!\n";
+	return 0;
+  }
+  #+END_SRC
