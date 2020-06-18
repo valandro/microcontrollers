@@ -223,3 +223,110 @@
 	return 0;
   }
   #+END_SRC
+* LAB03 (2020-06-14 / 2020-06-17)
+** Utilizando pinos de I/O
+*** Explicação sobre pinos de I/O na Galileo e seu funcionamento
+
+   GPIO: General-purpose input/output
+
+
+   Cada pino conector de *shield* possui várias funções, e para
+   utilizá-los é necessários configurar seus multiplexadores para
+   obter o efeito desejado.
+ 
+
+   Pinos:
+   - IO2 e IO3 => Quando configurados como GPIO são comandados
+     diretamente pelo Quark X1000.
+   - A0 -> A5 => São compartilhados com o conversor A/D, podem ser
+     configurados apenas para saída, além de terem capacitores de
+     *150nF* em suas saídas.
+   - IO0 -> IO6 e IO9-IO13 => Quando configurados como GPIO são
+     comandados diretamente pelo Quark X1000, os demais são obtidos
+     através de expansores, e por isso possuem *latência maior*.
+
+
+   Ou seja, algumas portas GPIO estão disponíveis no conector de
+   shield e outras são usadas internamente na Galileo para controlar 
+   os multiplexadores.
+
+   Para tanto, a *Galileo Gen2* possui 3 expansores de GPIO PCAL9535A
+   conectados ao Quark X1000 através do barramento I2C nos endereços
+   *0x25, 0x26 e 0x27*.
+   
+*** Acesso às Portas GPIO
+
+   Para utilizar os pinos de I/O no conector de shield da Galileo Gen2
+   é necessário configurar:
+
+   - O(s) multiplexador(es) que conectam o pino no conector ao Quark
+     ou ao chip da Galileo que provê a funcionalidade desejada.
+   - A direção do buffer associado ao sinal. *(Na Galileo Gen2)*
+   - Se um resistor de pull-up ou pull-down de 22k ohm deve ser
+     conectado ao pino. *(Gen1 o resistor é de 5.6k ohm)*
+   - A direção do sinal.
+
+   *NOTE QUE* na Galileo Gen2 deve-se configurar *independentemente* a
+   direção do buffer e a direção do pino de GPIO. Uma tabela com o
+   mapeamento de I/O está disponível no Moodle.
+
+*** Configuração dos Pinos do Shield para uso como GPIO
+
+  Na *Galileo Gen2* para configurar o pino *IO13* como saída digital,
+  pode-se verificar, através da tabela de mapeamento de pinos de I/O,
+  que deve-se configurar os *gpio46* e *gpio30* como saída em *nível*
+  *lógico baixo*, enquanto o *gpio31* controla se será usado ou não o
+  resistor de pull-up ou pull-down e, finalmente o *gpio7* controla o
+  sinal que aparecerá no pino *IO13*.
+
+  Para configurar um determinado *gpio*, é necessário primeiro exportar
+  a porta. Isto é feito escrevendo o número (em ASCII) da porta *GPIO*
+  em */sys/class/gpio/export*. Por exemplo, usando comandos do shell:
+
+  #+BEGIN_SRC shell
+
+  echo -n "out" > /sys/class/gpio/gpio46/direction
+
+  #+END_SRC
+
+  Com isso surgirá um diretório correspondente à porta. No caso, em
+  */sys/class/gpio/gpio46*. A direção da porta é controlada escrevendo
+  "in" ou "out" em */sys/class/gpio/gpioXX/direction*.
+
+
+  #+BEGIN_SRC shell
+  
+  echo -n "out" > /sys/class/gpio/gpio46/direction
+  
+  #+END_SRC
+
+
+  Para escrever ou ler uma porta GPIO, pode-se utilizar os comandos a
+  seguir:
+
+  #+BEGIN_SRC shell
+
+  echo -n "0" > /sys/class/gpio/gpio46/value
+
+  ou 
+
+  cat /sys/class/gpio/gpio46/value
+
+  #+END_SRc
+
+  Para as portas que controlam os *multiplexadores* ou direção dos
+  buffers também é possível escrever "low" ou "high" no pseudo-arquivo
+  *direction*. Isso é equivalente a configurar simultaneamente *direction*
+  para "out" e *value* para "0" ou "1".
+
+  Quando a porta I/O *não for mais utilizada* basta "desexportar"
+  escrevendo em:
+
+
+  #+BEGIN_SRC shell
+
+  echo -n "46" > /sys/class/gpio/unexport
+
+  #+END_SRC
+
+*** Ajuste das permissões
