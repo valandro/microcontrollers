@@ -52,7 +52,6 @@
    
    ip neighbor
 
-
 *** Configuração de acesso rápido
   
   Após descobrir o IP da galileo em sua rede, é uma boa prática
@@ -330,3 +329,75 @@
   #+END_SRC
 
 *** Ajuste das permissões
+
+  Por default, os arquivos em /sys/class/gpio só podem ser escritos
+  pelo superusuário. Isso iria requerer que todos usuários que
+  utilizassem o GPIO tivessem permissões de superusuário, o que não é
+  uma boa ideia por questões de segurança.
+
+  Uma alternativa para esse problema é criar um grupo chamado *gpio* e
+  dar as devidas permissões para os arquivos /sys/class/gpio.
+
+  Criando um novo usuário na Galileo, primeiro acesso como *root*.
+
+  #+BEGIN_SRC shell
+
+  sudo useradd <username>
+
+  sudo passwd <username>
+
+  #+END_SRC
+
+  Obs.: Talvez seja necessário adicionar sua chave pública no folder
+  .ssh desse novo usuário.
+
+  O script abaixo demonstra como configurar o pino *IO13* como saída e
+  ajusta as permissões para que possa ser controlado por usuários que
+  pertençam ao grupo *gpio*. Note que os comentários não são meramente
+  informativo, eles são necessários para correta interpretação do
+  programa.
+
+  
+  #+BEGIN_SRC shell
+
+  #! /bin/sh
+  ### BEGIN INIT INFO
+  # Provides: eng10032lab03_1
+  # Required-Start:
+  # Should-Start:
+  # Required-Stop:
+  # Default-Start: S
+  # Default-Stop:
+  # Short-Description: Configures GPIO for Lab 03.
+  # Description: Configures GPIO for Lab 03.
+  ### END INIT INFO
+
+  case "$1" in
+   start|restart|force-reload)
+    if [ ! -d /sys/class/gpio/gpio46 ] ; then
+     echo -n "46" > /sys/class/gpio/export
+    fi
+    echo -n "out" > /sys/class/gpio/gpio46/direction
+    echo -n "0" > /sys/class/gpio/gpio46/value
+    if [ ! -d /sys/class/gpio/gpio30 ] ; then
+     echo -n "30" > /sys/class/gpio/export
+    fi
+    echo -n "out" > /sys/class/gpio/gpio30/direction
+    echo -n "0" > /sys/class/gpio/gpio30/value
+    if [ ! -d /sys/class/gpio/gpio7 ] ; then
+     echo -n "7" > /sys/class/gpio/export
+    fi
+    echo -n "out" > /sys/class/gpio/gpio7/direction
+    chgrp gpio /sys/class/gpio/gpio7/value
+    chmod g+rw /sys/class/gpio/gpio7/value
+    ;;
+   stop)
+    echo -n "in" > /sys/class/gpio/gpio7/direction
+    echo -n "7" > /sys/class/gpio/unexport
+    echo -n "1" > /sys/class/gpio/gpio30/value
+    echo -n "30" > /sys/class/gpio/unexport
+    echo -n "46" > /sys/class/gpio/unexport
+    ;;
+   status)
+    ls -d /sys/class/gpio/gpio*
+  #+END_SRC
