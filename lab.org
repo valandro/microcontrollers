@@ -128,7 +128,7 @@
 
   Makefile
 
-  #+BEGIN_SRC C
+  #+BEGIN_SRC c
   TARGET=hello
   SRCS=$(TARGET).c
 
@@ -160,7 +160,7 @@
 
   hello.c
 
-  #+BEGIN_SRC C
+  #+BEGIN_SRC c
   #include <stdio.h>
   int main(int argc, char *argv[]) {
     printf("Hello, world!\n");
@@ -183,7 +183,7 @@
   A ideia é criar um hello world em C++, fazendo adaptações no
   Makefile existente.
 
-  #+BEGIN_SRC C
+  #+BEGIN_SRC c
   TARGET=hello
   SRCS=$(TARGET).cpp
 
@@ -213,8 +213,7 @@
 		rm -f $(TARGET)
 
   #+END_SRC
-
-  #+BEGIN_SRC CPP
+  #+BEGIN_SRC c++
   #include <iostream>
 
   int main() {
@@ -358,6 +357,7 @@
   programa.
 
   
+  #+NAME eng1002lab03_1
   #+BEGIN_SRC shell
 
   #! /bin/sh
@@ -401,3 +401,57 @@
    status)
     ls -d /sys/class/gpio/gpio*
   #+END_SRC
+** Experimentos
+*** Configuração da Galileo para Usar GPIO
+   O primeiro copie para Galileo o script *eng10032lab03_1*
+
+   #+BEGIN_SRC shell
+
+   scp eng10032lab03_1 <username>@<ip>:  
+ 
+   #+END_SRC
+
+   Agora, acesse a Galileo como *superusuário* e adicione seu usuário no grupo *gpio*
+   
+   #+BEGIN_SRC shell
+
+   groupadd -r gpio
+
+   groupmems -g gpio -a <username>
+
+   #+END_SRC
+
+   Copie o arquivo para o diretório /etc/init.d na galileo com o
+   comando:
+
+   #+BEGIN_SRC shell
+   
+   cp ~/eng10032lab03_1 /etc/init.d   
+
+   #+END_SRC
+
+   Torne o *script* executável com o comando:
+
+   #+BEGIN_SRC shell
+
+   chmod +x /etc/init.d/en10032lab03_1
+
+   #+END_SRC
+
+
+   Configure o linux para executar o script durante a inicialização
+
+   #+BEGIN_SRC shell
+
+   update-rc.d eng10032lab031_1 defaults
+
+   #+END_SRC
+
+   E por fim, reinicialize a Galileo
+
+   #+BEGIN_SRC shell
+
+   reboot
+
+   #+END_SRC
+*** Uso dos pinos de GPIO
