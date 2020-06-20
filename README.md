@@ -8,7 +8,6 @@ This repository idea is to centralize my journey through the labs from `ENG10032
 
 - Enviroment set up
 
-
 ## LAB 02
 
 - Cross compiler and hello world!
@@ -16,6 +15,10 @@ This repository idea is to centralize my journey through the labs from `ENG10032
 ## LAB 03
 
 - GPIO and blinking LEDs
+
+![Lab 03 - Circuit](./img/lab03_circuit.png)
+
+![Lab 03 - Protoboard](./img/lab03_galileo.JPG)
 
 ### License
 
