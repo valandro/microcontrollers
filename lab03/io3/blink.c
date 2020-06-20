@@ -25,34 +25,42 @@
 #include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdio.h>
 
 int main(int argc,char *argv[])
 {
-	char state='0';
-	int fd;
+	char state;
+	int led = 0;
+	int button = 0;
 	char s[20];
 	int n;
 	
-	fd=open("/sys/devices/virtual/dmi/id/board_name",O_RDONLY);
-	n=read(fd,s,sizeof s);
-	close(fd);
-	s[n-1]='\0'; /* Discards new line */
+
+	led=open("/sys/devices/virtual/dmi/id/board_name", O_RDONLY);
+	n = read(led, s, sizeof s);
+	close(led);
+	s[n-1] = '\0'; /* Discards new line */
 
 	if(strncmp(s,"Galileo",sizeof s) == 0)
-	    fd=open("/sys/class/gpio/gpio3/value",O_WRONLY);
-	else if(strncmp(s,"GalileoGen2",sizeof s) == 0)
-	    fd=open("/sys/class/gpio/gpio14/value",O_WRONLY);
-        else return -1;
+	    led=open("/sys/class/gpio/gpio3/value", O_WRONLY);
+	else if(strncmp(s,"GalileoGen2",sizeof s) == 0) {
+	    led=open("/sys/class/gpio/gpio14/value", O_WRONLY);
+		button=open("/sys/class/gpio/gpio13/value", O_RDONLY);
+	} else return -1;
 
 	for(;;)
 	{	
-		lseek(fd,0,SEEK_SET);
-		write(fd,&state,sizeof state);
-		sleep(1);
-		state^='0'^'1';
+		// Read signal from button
+		lseek(button, 0, SEEK_SET);
+		read(button, &state, sizeof state);
+
+		// Write state on button
+		lseek(led, 0, SEEK_SET);
+		write(led, &state, sizeof state);
 	}
 	
-	close(fd);
-	
+	close(led);
+	close(button);
+
 	return 0;
 }
