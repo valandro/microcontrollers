@@ -8,6 +8,15 @@ This repository idea is to centralize my journey through the labs from `ENG10032
 
 - Enviroment set up
 
+
+## LAB 02
+
+- Cross compiler and hello world!
+
+## LAB 03
+
+- GPIO and blinking LEDs
+
 ### License
 
 MIT License. [Click here for more information.](LICENSE)
