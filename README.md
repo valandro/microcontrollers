@@ -20,6 +20,10 @@ This repository idea is to centralize my journey through the labs from `ENG10032
 
 ![Lab 03 - Protoboard](./img/lab03_galileo.JPG)
 
+## LAB 04
+
+- Call `Assembly` functions in C programs.
+
 ### License
 
 MIT License. [Click here for more information.](LICENSE)
