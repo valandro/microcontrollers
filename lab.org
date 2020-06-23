@@ -906,6 +906,203 @@
 	   return 0;
    }
    #+END_SRC
-   
+
 
    E por fim, basta remover a configuração da inicialização da Galileo.
+* LAB04 (2020-06-23)
+** Chamada de subrotinas da linguagem C
+
+ O objetivo desse laboratório é explorar maneiras de desenvolver
+ rotinas em Assembly que possam ser chamadas a partir de programas em
+ linguagem C.
+
+ Em linguagens de alto nível, os parâmetros para as funções são
+ passados através da pilha do sistema. Cada linguagem possui certas
+ convenções de como deve ser feita essa passagem, diferendo em alguns
+ pontos como:
+
+ - Ordem com o que os parâmetros são colocados na pilha;
+ - Se os parâmetros são passados por valor (o parâmetro é colocado na
+   pilha) ou por referência (o end. do parâmetro é colocado na pilha);
+ - Se quem limpa a pilha (remove os parâmetros) é a função chamada ou
+   a chamadora.
+
+ Em particular, *na linguagem C*, a convenção é que os parâmetros são
+ colocados na pilha *por valor*, da direita para a esquerda (ou seja, o
+ último parâmetro é o primeiro a ser colocado na pilha) e quem limpa a
+ pilha é a função que está *fazendo a chamada*. 
+
+ Usualmente em sistemas *IA32*, o valor de retorno da função deve estar
+ no registrador *eax*, se for de *32 bits* ou *edx:eax*, se for de *64 bits*
+ (ou *st(0)*), se for de ponto fluante. No *Linux* tem-se ainda que os
+ registradores *ebp, esi, edi e ebx*, ou seja, os registradores *de base
+ e* *de índice*, devem ser preservados através da chamada da subrotina
+ (isto é, devem ser salvos e restaurados, se forem utilziados pela
+ subrotina), enquantos os demais podem ser utilizados livremente. 
+
+ Em sistemas *x86_64*, quando executando código de 64 bits, a convenção
+ de chamadas de funções é otimizada para passar os parâmetros por
+ registrador quando a função possui poucos parâmetros. Os
+ registradores *rdi, rsi, rdx, rcx, r8 e r9* são utilizados para passar
+ argumentos inteiros e ponteiros, e os registradores *xmm0, xmm1,*
+ *xmm2, xmm3, xmm4, xmm5, xmm6, e xmm7* são utilizados para argumentos
+ em ponto flutuante. Os demais argumentos são passados pela pilha. O
+ valor de retorno da função deve estar em *rax* e os registradores *rbp*
+ *e rbx* devem ser preservados.
+
+*** Programas em C chamando rotinas em Assembly
+
+  Programa em C para calcular soma e diferença entre dois inteiros.
+
+  #+BEGIN_SRC c
+  /*
+    callasm.c: Calls assembly functions for sum and difference.
+
+    Copyright (c) 2016 Walter Fetter Lages <w.fetter@ieee.org>
+
+      This program is free software; you can redistribute it and/or modify
+      it under the terms of the GNU General Public License as published by
+      the Free Software Foundation; either version 2 of the License, or
+      (at your option) any later version.
+
+      This program is distributed in the hope that it will be useful,
+      but WITHOUT ANY WARRANTY; without even the implied warranty of
+      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+      GNU General Public License for more details.
+
+      You should have received a copy of the GNU General Public License
+      along with this program; if not, write to the Free Software
+      Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+      You can also obtain a copy of the GNU General Public License
+      at <http://www.gnu.org/licenses>.
+
+  */
+
+  #include <stdio.h>
+  #include <stdlib.h>
+
+  #include <asmops.h>
+
+  int main(int argc, char *argv[])
+  {
+	  int a;
+	  int b;
+	  int s;
+	  int d;
+
+	  if(argc != 3)
+	  {
+		  printf("Usage:\n\t%s <int> <int>\n", argv[0]);
+		  return -1;
+	  }
+
+	  a=atoi(argv[1]);
+	  b=atoi(argv[2]);
+
+	  s=sum(a,b);
+	  d=diff(&a,&b);
+
+	  printf("%d+%d=%d\n%d-%d=%d\n",a,b,s,a,b,d);
+
+	  return 0;
+  }
+  #+END_SRC
+ 
+  Protótipos das funções sum e diff
+
+  #+BEGIN_SRC c
+  /*
+    asmops.h: Header file for sum and difference in Assembly.
+
+    Copyright (c) 2016 Walter Fetter Lages <w.fetter@ieee.org>
+
+      This program is free software; you can redistribute it and/or modify
+      it under the terms of the GNU General Public License as published by
+      the Free Software Foundation; either version 2 of the License, or
+      (at your option) any later version.
+
+      This program is distributed in the hope that it will be useful,
+      but WITHOUT ANY WARRANTY; without even the implied warranty of
+      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+      GNU General Public License for more details.
+
+      You should have received a copy of the GNU General Public License
+      along with this program; if not, write to the Free Software
+      Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+      You can also obtain a copy of the GNU General Public License
+      at <http://www.gnu.org/licenses>.
+
+  */
+
+  #ifndef ASMOPS_H
+  #define ASMOPS_H
+
+  extern int sum(int a, int b);
+  extern int diff(int *a, int *b);
+
+  #endif
+  #+END_SRC
+
+  Funções implementadas em assembly
+
+  #+BEGIN_SRC assembly
+  /*
+    asmops.s: sum and difference in Assembly.
+
+    Copyright (c) 2016 Walter Fetter Lages <w.fetter@ieee.org>
+
+      This program is free software; you can redistribute it and/or modify
+      it under the terms of the GNU General Public License as published by
+      the Free Software Foundation; either version 2 of the License, or
+      (at your option) any later version.
+
+      This program is distributed in the hope that it will be useful,
+      but WITHOUT ANY WARRANTY; without even the implied warranty of
+      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+      GNU General Public License for more details.
+
+      You should have received a copy of the GNU General Public License
+      along with this program; if not, write to the Free Software
+      Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+     You can also obtain a copy of the GNU General Public License
+      at <http://www.gnu.org/licenses>.
+  */
+
+	  .intel_syntax noprefix
+
+	  .text
+
+	  .global	sum
+	  .global	diff
+
+  # int sum(int a, int b)
+  sum:
+	  push	ebp
+	  mov	ebp, esp
+
+	  mov	eax, [ebp+8]	# a
+	  add	eax, [ebp+12]	# b
+
+	  pop	ebp
+	  ret
+
+  # int diff(int &a, int &b)
+  diff:
+	  push	ebp
+	  mov	ebp, esp
+	  push	ebx
+
+	  mov	ebx, [ebp+8]	# &a
+	  mov	eax, [ebx]	# a
+	  mov	ebx, [ebp+12]	# &b
+	  sub	eax, [ebx]	# b
+
+	  pop	ebx
+	  pop	ebp
+	  ret
+  #+END_SRC
+
+*** Experimentos
