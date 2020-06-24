@@ -92,9 +92,9 @@ case "$1" in
     	echo -n "in" > /sys/class/gpio/gpio14/direction
     	echo -n "14" > /sys/class/gpio/unexport
     	echo -n "1" > /sys/class/gpio/gpio16/value
-		echo -n "out" > /sys/class/gpio/gpio13/direction
+		echo -n "in" > /sys/class/gpio/gpio13/direction
     	echo -n "13" > /sys/class/gpio/unexport
-    	echo -n "0" > /sys/class/gpio/gpio34/value
+    	echo -n "1" > /sys/class/gpio/gpio34/value
 	echo -n "16" > /sys/class/gpio/unexport
 	echo -n "76" > /sys/class/gpio/unexport
 	echo -n "34" > /sys/class/gpio/unexport

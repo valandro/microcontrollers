@@ -1,0 +1,66 @@
+GAS LISTING asmops.s 			page 1
+
+
+   1              	/*
+   2              	  asmops.s: sum and difference in Assembly.
+   3              	  
+   4              	  Copyright (c) 2016 Walter Fetter Lages <w.fetter@ieee.org>
+   5              	
+   6              	    This program is free software; you can redistribute it and/or modify
+   7              	    it under the terms of the GNU General Public License as published by
+   8              	    the Free Software Foundation; either version 2 of the License, or
+   9              	    (at your option) any later version.
+  10              	
+  11              	    This program is distributed in the hope that it will be useful,
+  12              	    but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13              	    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14              	    GNU General Public License for more details.
+  15              	
+  16              	    You should have received a copy of the GNU General Public License
+  17              	    along with this program; if not, write to the Free Software
+  18              	    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  19              	
+  20              	   You can also obtain a copy of the GNU General Public License
+  21              	    at <http://www.gnu.org/licenses>.
+  22              	*/
+  23              	
+  24              		.intel_syntax noprefix
+  25              	
+  26              		.text
+  27              		
+  28              		.global	sum
+  29              		.global	diff
+  30              	
+  31              	# int sum(int a,int b)
+  32              	sum:
+  33 0000 55       		push	ebp
+  34 0001 89E5     		mov	ebp,esp
+  35              	
+  36 0003 8B4508   		mov	eax,[ebp+8]	# a
+  37 0006 03450C   		add	eax,[ebp+12]	# b
+  38              	
+  39 0009 5D       		pop	ebp
+  40 000a C3       		ret
+  41              	
+  42              	# int diff(int &a,int &b)
+  43              	diff:
+  44 000b 55       		push	ebp
+  45 000c 89E5     		mov	ebp,esp
+  46 000e 53       		push	ebx
+  47              	
+  48 000f 8B5D08   		mov	ebx,[ebp+8]	# &a
+  49 0012 8B03     		mov	eax,[ebx]	# a
+  50 0014 8B5D0C   		mov	ebx,[ebp+12]	# &b
+  51 0017 2B03     		sub	eax,[ebx]	# b
+  52              	
+  53 0019 5B       		pop	ebx
+  54 001a 5D       		pop	ebp
+  55 001b C3       		ret
+GAS LISTING asmops.s 			page 2
+
+
+DEFINED SYMBOLS
+            asmops.s:32     .text:0000000000000000 sum
+            asmops.s:43     .text:000000000000000b diff
+
+NO UNDEFINED SYMBOLS
