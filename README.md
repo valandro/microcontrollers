@@ -24,6 +24,10 @@ This repository idea is to centralize my journey through the labs from `ENG10032
 
 - Call `Assembly` functions in C programs.
 
+### LAB 05
+
+- Call `Interrupts`.
+
 ### License
 
 MIT License. [Click here for more information.](LICENSE)
