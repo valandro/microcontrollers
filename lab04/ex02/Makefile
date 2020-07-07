@@ -1,11 +1,11 @@
 TARGET=toup
 CSRCS=$(TARGET).c 
-ASMSRCS=printup.s
+ASMSRCS=touppercase.s
 
 FLAGS=
 INCLUDE=-I.
-LIBDIR=-L../lib
-LIBS=-leng10032
+LIBDIR=
+LIBS=
 
 AS=$(CROSS_COMPILE)as
 ASFLAGS=-gstabs -a=`echo $@ | cut -f 1 -d.`.lst --32 \

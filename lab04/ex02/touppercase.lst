@@ -1,0 +1,84 @@
+GAS LISTING touppercase.s 			page 1
+
+
+   1              	/*
+   2              	  asmops.s: sum and difference in Assembly.
+   3              	  
+   4              	  Copyright (c) 2016 Walter Fetter Lages <w.fetter@ieee.org>
+   5              	
+   6              	    This program is free software; you can redistribute it and/or modify
+   7              	    it under the terms of the GNU General Public License as published by
+   8              	    the Free Software Foundation; either version 2 of the License, or
+   9              	    (at your option) any later version.
+  10              	
+  11              	    This program is distributed in the hope that it will be useful,
+  12              	    but WITHOUT ANY WARRANTY; without even the implied warranty of
+  13              	    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  14              	    GNU General Public License for more details.
+  15              	
+  16              	    You should have received a copy of the GNU General Public License
+  17              	    along with this program; if not, write to the Free Software
+  18              	    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  19              	
+  20              	   You can also obtain a copy of the GNU General Public License
+  21              	    at <http://www.gnu.org/licenses>.
+  22              	*/
+  23              	
+  24              		.intel_syntax noprefix
+  25              	
+  26              		.text
+  27              		
+  28              		.global	to_uppercase
+  29              	
+  30              	#
+  31              	# void to_uppercase(char* word)
+  32              	# function to convert a word to uppercase and print them 
+  33              	#
+  34              	
+  35              	to_uppercase:
+  36              	_start:
+  37 0000 55       		push	ebp # save stack position so we can restore it later
+  38 0001 89E5     		mov	ebp, esp # put stack pointer at base pointer
+  39 0003 8B7508   	  mov esi, [ebp + 8] # pointer to the first char of string to auxiliar register (ESI)
+  40 0006 BA000000 	  mov edx, 0 # edx it's the string length counter
+  40      00
+  41              	
+  42              	to_upper:
+  43 000b 8A06     	  mov al, [esi] # esi it's the pointer to the first char
+  44 000d 3C00     	  cmp al, 0x0 # end of string
+  45 000f 7412     	  je print
+  46 0011 83C201   	  add edx, 1 # increment the string length
+  47 0014 3C61     	  cmp al, 'a' # if char below 'a' then do nothing
+  48 0016 7208     	  jb next_char
+  49 0018 3C7A     	  cmp al, 'z' # if char greater then 'z' then do nothing
+  50 001a 7704     	  ja next_char
+  51 001c 2C20     	  sub al, 0x20 # Then convert to upper case ASCII value (subtract 0010 0000)
+  52 001e 8806     	  mov [esi], al # write it back to esi
+  53              	
+  54              	next_char:
+  55 0020 46       	  inc esi # go to next char (*esi++)
+  56 0021 EBE8     	  jmp to_upper
+GAS LISTING touppercase.s 			page 2
+
+
+  57              	
+  58              	print:
+  59 0023 8B4D08   	  mov ecx, [ebp + 8] # word to be writed
+  60 0026 B8040000 	  mov eax, 4 # linux kernel function code for writing function
+  60      00
+  61 002b BB010000 	  mov ebx, 1 # file descriptor, 1 means stdout
+  61      00
+  62 0030 CD80     	  int 0x80 # call write function in the linux kernel
+  63 0032 5D       		pop	ebp  # Reset all registers used by the function
+  64 0033 C3       		ret
+GAS LISTING touppercase.s 			page 3
+
+
+DEFINED SYMBOLS
+       touppercase.s:35     .text:0000000000000000 to_uppercase
+       touppercase.s:36     .text:0000000000000000 _start
+       touppercase.s:42     .text:000000000000000b to_upper
+       touppercase.s:58     .text:0000000000000023 print
+       touppercase.s:54     .text:0000000000000020 next_char
+
+NO UNDEFINED SYMBOLS
