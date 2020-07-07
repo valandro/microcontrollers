@@ -909,7 +909,7 @@
 
 
    E por fim, basta remover a configuração da inicialização da Galileo.
-* LAB04 (2020-06-23)
+* LAB04 (2020-06-23 / 2020-07-07)
 ** Chamada de subrotinas da linguagem C
 
  O objetivo desse laboratório é explorar maneiras de desenvolver
@@ -936,194 +936,280 @@
  no registrador *eax*, se for de *32 bits* ou *edx:eax*, se for de *64 bits*
  (ou *st(0)*), se for de ponto fluante. No *Linux* tem-se ainda que os
  registradores *ebp, esi, edi e ebx*, ou seja, os registradores *de base
- e* *de índice*, devem ser preservados através da chamada da subrotina
- (isto é, devem ser salvos e restaurados, se forem utilziados pela
- subrotina), enquantos os demais podem ser utilizados livremente. 
+   e* *de índice*, devem ser preservados através da chamada da subrotina
+   (isto é, devem ser salvos e restaurados, se forem utilziados pela
+   subrotina), enquantos os demais podem ser utilizados livremente. 
 
- Em sistemas *x86_64*, quando executando código de 64 bits, a convenção
- de chamadas de funções é otimizada para passar os parâmetros por
- registrador quando a função possui poucos parâmetros. Os
- registradores *rdi, rsi, rdx, rcx, r8 e r9* são utilizados para passar
- argumentos inteiros e ponteiros, e os registradores *xmm0, xmm1,*
- *xmm2, xmm3, xmm4, xmm5, xmm6, e xmm7* são utilizados para argumentos
- em ponto flutuante. Os demais argumentos são passados pela pilha. O
- valor de retorno da função deve estar em *rax* e os registradores *rbp*
- *e rbx* devem ser preservados.
+   Em sistemas *x86_64*, quando executando código de 64 bits, a convenção
+   de chamadas de funções é otimizada para passar os parâmetros por
+   registrador quando a função possui poucos parâmetros. Os
+   registradores *rdi, rsi, rdx, rcx, r8 e r9* são utilizados para passar
+   argumentos inteiros e ponteiros, e os registradores *xmm0, xmm1,*
+   *xmm2, xmm3, xmm4, xmm5, xmm6, e xmm7* são utilizados para argumentos
+   em ponto flutuante. Os demais argumentos são passados pela pilha. O
+   valor de retorno da função deve estar em *rax* e os registradores *rbp*
+   *e rbx* devem ser preservados.
 
 *** Programas em C chamando rotinas em Assembly
 
- Programa em C para calcular soma e diferença entre dois inteiros.
+   Programa em C para calcular soma e diferença entre dois inteiros.
 
- #+BEGIN_SRC c
- /*
-   callasm.c: Calls assembly functions for sum and difference.
+   #+BEGIN_SRC c
+   /*
+     callasm.c: Calls assembly functions for sum and difference.
 
-   Copyright (c) 2016 Walter Fetter Lages <w.fetter@ieee.org>
+     Copyright (c) 2016 Walter Fetter Lages <w.fetter@ieee.org>
 
-     This program is free software; you can redistribute it and/or modify
-     it under the terms of the GNU General Public License as published by
-     the Free Software Foundation; either version 2 of the License, or
-     (at your option) any later version.
+       This program is free software; you can redistribute it and/or modify
+       it under the terms of the GNU General Public License as published by
+       the Free Software Foundation; either version 2 of the License, or
+       (at your option) any later version.
 
-     This program is distributed in the hope that it will be useful,
-     but WITHOUT ANY WARRANTY; without even the implied warranty of
-     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-     GNU General Public License for more details.
+       This program is distributed in the hope that it will be useful,
+       but WITHOUT ANY WARRANTY; without even the implied warranty of
+       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+       GNU General Public License for more details.
 
-     You should have received a copy of the GNU General Public License
-     along with this program; if not, write to the Free Software
-     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+       You should have received a copy of the GNU General Public License
+       along with this program; if not, write to the Free Software
+       Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-     You can also obtain a copy of the GNU General Public License
-     at <http://www.gnu.org/licenses>.
+       You can also obtain a copy of the GNU General Public License
+       at <http://www.gnu.org/licenses>.
 
- */
+   */
 
- #include <stdio.h>
- #include <stdlib.h>
+   #include <stdio.h>
+   #include <stdlib.h>
 
- #include <asmops.h>
+   #include <asmops.h>
 
- int main(int argc, char *argv[])
- {
-	 int a;
-	 int b;
-	 int s;
-	 int d;
+   int main(int argc, char *argv[])
+   {
+	   int a;
+	   int b;
+	   int s;
+	   int d;
 
-	 if(argc != 3)
-	 {
-		 printf("Usage:\n\t%s <int> <int>\n", argv[0]);
-		 return -1;
-	 }
+	   if(argc != 3)
+	   {
+		   printf("Usage:\n\t%s <int> <int>\n", argv[0]);
+		   return -1;
+	   }
 
-	 a=atoi(argv[1]);
-	 b=atoi(argv[2]);
+	   a=atoi(argv[1]);
+	   b=atoi(argv[2]);
 
-	 s=sum(a,b);
-	 d=diff(&a,&b);
+	   s=sum(a,b);
+	   d=diff(&a,&b);
 
-	 printf("%d+%d=%d\n%d-%d=%d\n",a,b,s,a,b,d);
+	   printf("%d+%d=%d\n%d-%d=%d\n",a,b,s,a,b,d);
 
-	 return 0;
- }
- #+END_SRC
+	   return 0;
+   }
+   #+END_SRC
 
- Protótipos das funções sum e diff
+   Protótipos das funções sum e diff
 
- #+BEGIN_SRC c
- /*
-   asmops.h: Header file for sum and difference in Assembly.
+   #+BEGIN_SRC c
+   /*
+     asmops.h: Header file for sum and difference in Assembly.
 
-   Copyright (c) 2016 Walter Fetter Lages <w.fetter@ieee.org>
+     Copyright (c) 2016 Walter Fetter Lages <w.fetter@ieee.org>
 
-     This program is free software; you can redistribute it and/or modify
-     it under the terms of the GNU General Public License as published by
-     the Free Software Foundation; either version 2 of the License, or
-     (at your option) any later version.
+       This program is free software; you can redistribute it and/or modify
+       it under the terms of the GNU General Public License as published by
+       the Free Software Foundation; either version 2 of the License, or
+       (at your option) any later version.
 
-     This program is distributed in the hope that it will be useful,
-     but WITHOUT ANY WARRANTY; without even the implied warranty of
-     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-     GNU General Public License for more details.
+       This program is distributed in the hope that it will be useful,
+       but WITHOUT ANY WARRANTY; without even the implied warranty of
+       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+       GNU General Public License for more details.
 
-     You should have received a copy of the GNU General Public License
-     along with this program; if not, write to the Free Software
-     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+       You should have received a copy of the GNU General Public License
+       along with this program; if not, write to the Free Software
+       Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-     You can also obtain a copy of the GNU General Public License
-     at <http://www.gnu.org/licenses>.
+       You can also obtain a copy of the GNU General Public License
+       at <http://www.gnu.org/licenses>.
 
- */
+   */
 
- #ifndef ASMOPS_H
- #define ASMOPS_H
+   #ifndef ASMOPS_H
+   #define ASMOPS_H
 
- extern int sum(int a, int b);
- extern int diff(int *a, int *b);
+   extern int sum(int a, int b);
+   extern int diff(int *a, int *b);
 
- #endif
- #+END_SRC
+   #endif
+   #+END_SRC
 
- Funções implementadas em assembly
+   Funções implementadas em assembly
 
- #+BEGIN_SRC assembly
- /*
-   asmops.s: sum and difference in Assembly.
+   #+BEGIN_SRC assembly
+   /*
+     asmops.s: sum and difference in Assembly.
 
-   Copyright (c) 2016 Walter Fetter Lages <w.fetter@ieee.org>
+     Copyright (c) 2016 Walter Fetter Lages <w.fetter@ieee.org>
 
-     This program is free software; you can redistribute it and/or modify
-     it under the terms of the GNU General Public License as published by
-     the Free Software Foundation; either version 2 of the License, or
-     (at your option) any later version.
+       This program is free software; you can redistribute it and/or modify
+       it under the terms of the GNU General Public License as published by
+       the Free Software Foundation; either version 2 of the License, or
+       (at your option) any later version.
 
-     This program is distributed in the hope that it will be useful,
-     but WITHOUT ANY WARRANTY; without even the implied warranty of
-     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-     GNU General Public License for more details.
+       This program is distributed in the hope that it will be useful,
+       but WITHOUT ANY WARRANTY; without even the implied warranty of
+       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+       GNU General Public License for more details.
 
-     You should have received a copy of the GNU General Public License
-     along with this program; if not, write to the Free Software
-     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+       You should have received a copy of the GNU General Public License
+       along with this program; if not, write to the Free Software
+       Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-    You can also obtain a copy of the GNU General Public License
-     at <http://www.gnu.org/licenses>.
- */
+      You can also obtain a copy of the GNU General Public License
+       at <http://www.gnu.org/licenses>.
+   */
 
-	 .intel_syntax noprefix
+	   .intel_syntax noprefix
 
-	 .text
+	   .text
 
-	 .global	sum
-	 .global	diff
+	   .global	sum
+	   .global	diff
 
- # int sum(int a, int b)
- sum:
-	 push	ebp
-	 mov	ebp, esp
+   # int sum(int a, int b)
+   sum:
+	   push	ebp
+	   mov	ebp, esp
 
-	 mov	eax, [ebp+8]	# a
-	 add	eax, [ebp+12]	# b
+	   mov	eax, [ebp+8]	# a
+	   add	eax, [ebp+12]	# b
 
-	 pop	ebp
-	 ret
+	   pop	ebp
+	   ret
 
- # int diff(int &a, int &b)
- diff:
-	 push	ebp
-	 mov	ebp, esp
-	 push	ebx
+   # int diff(int &a, int &b)
+   diff:
+	   push	ebp
+	   mov	ebp, esp
+	   push	ebx
 
-	 mov	ebx, [ebp+8]	# &a
-	 mov	eax, [ebx]	# a
-	 mov	ebx, [ebp+12]	# &b
-	 sub	eax, [ebx]	# b
+	   mov	ebx, [ebp+8]	# &a
+	   mov	eax, [ebx]	# a
+	   mov	ebx, [ebp+12]	# &b
+	   sub	eax, [ebx]	# b
 
-	 pop	ebx
-	 pop	ebp
-	 ret
- #+END_SRC
+	   pop	ebx
+	   pop	ebp
+	   ret
+   #+END_SRC
 
 *** Experimentos
+**** Exercício 1
 
-  -
+    Deve-se compilar os programas na Galileo e carregar o executável na
+    mesma.
 
-  Deve-se compilar os programas na Galileo e carregar o executável na
-  mesma.
+    Ápos isso, então vamos executar o gdbserver na Galileo para fazermos
+    a depuração.
 
-  Ápos isso, então vamos executar o gdbserver na Galileo para fazermos
-  a depuração.
+    #+BEGIN_SRC shell
+    gdbserver <vm ip>:<port> callasm 1 2
+    #+END_SRC
 
-  #+BEGIN_SRC shell
-  gdbserver <vm ip>:<port> callasm 1 2
-  #+END_SRC
+    E então, no cliente, deve-se executar o /front end/ para depuração.
 
-  E então, no cliente, deve-se executar o /front end/ para depuração.
+    #+BEGIN_SRC shell
+    kdbg -r <ip galileo>:<same port> callasm
+    #+END_SRC
 
-  #+BEGIN_SRC shell
-  kdbg -r <ip galileo>:<same port> callasm
-  #+END_SRC
+**** Exercício 2
+
+   O objetivo desse exercício é criar um programa em Assembly para
+   conversão de uma string para caracteres em maísculo e impressão
+   dessa nova string na tela.
+
+   #+BEGIN_SRC c
+   #include <stdio.h>
+   #include <stdlib.h>
+   #include <touppercase.h>
+
+   int main(int argc,char *argv[])
+   {	
+	   if(argc != 2)
+	   {
+		   printf("Usage:\n\t%s <string>\n",argv[0]);
+		   return -1;
+	   }
+
+	   printf("input: %s\n", argv[1]);
+	   to_uppercase(argv[1]);
+
+	   printf("\n");
+
+	   return 0;
+   }
+   #+END_SRC
+
+   Biblioteca touppercase.h
+
+   #+BEGIN_SRC c
+   #ifndef TOUPPERCASE_H
+   #define TOUPPERCASE_H
+
+   extern void to_uppercase(char* word);
+
+   #endif
+   #+END_SRC
+
+   Arquivo .s com a função para conversão e impressão na tela
+
+   #+BEGIN_SRC asm
+	   .intel_syntax noprefix
+
+	   .text
+
+	   .global	to_uppercase
+
+   #
+   # void to_uppercase(char* word)
+   # function to convert a word to uppercase and print them 
+   #
+
+   to_uppercase:
+   _start:
+	   push	ebp # save stack position so we can restore it later
+	   mov	ebp, esp # put stack pointer at base pointer
+     mov esi, [ebp + 8] # pointer to the first char of string to auxiliar register (ESI)
+     mov edx, 0 # edx it's the string length counter
+
+   to_upper:
+     mov al, [esi] # esi it's the pointer to the first char
+     cmp al, 0x0 # end of string
+     je print
+     add edx, 1 # increment the string length
+     cmp al, 'a' # if char below 'a' then do nothing
+     jb next_char
+     cmp al, 'z' # if char greater then 'z' then do nothing
+     ja next_char
+     sub al, 0x20 # Then convert to upper case ASCII value (subtract 0010 0000)
+     mov [esi], al # write it back to esi
+
+   next_char:
+     inc esi # go to next char (*esi++)
+     jmp to_upper
+
+   print:
+     mov ecx, [ebp + 8] # word to be writed
+     mov eax, 4 # linux kernel function code for writing function
+     mov ebx, 1 # file descriptor, 1 means stdout
+     int 0x80 # call write function in the linux kernel
+	   pop	ebp  # Reset all registers used by the function
+	   ret
+
+   #+END_SRC
+
 * LAB05 (2020-07-05)
 ** Funcionamento de interrupções e seu processamento no espaço do usuário
  
