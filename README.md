@@ -30,7 +30,7 @@ This repository idea is to centralize my journey through the labs from `ENG10032
 
 ![Lab 05 - Circuit](./img/lab05_circuit.png)
 
-![Lab 05 - Protoboard](./img/lab05_galileo.jpg)
+![Lab 05 - Protoboard](./img/lab05_galileo.JPG)
 
 ### License
 
