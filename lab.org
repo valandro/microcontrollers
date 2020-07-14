@@ -1516,3 +1516,76 @@
 	   return 0;
    }
    #+END_SRC
+* LAB06 (2020-07-12)
+** Funcionamento das saídas PWM da Galileo
+
+ - Esse laboratório tem como objetivo aprendermos como utilizar um
+   sinal PWM para simular um sinal analógico e como utilizá-lo para
+   comandar o chaveamento de uma etapa de potência, de forma a poder
+   variar a tensão média sobre uma carga.
+
+*** Modulação
+  
+  A modulação é a operação de utilizar um sinal modulante para alterar
+  o sinal portador, podendo mudar sua fase, amplitude e/ou
+  frequência. Em particular, na modulação por largura de pulso (/PWM/) a
+  portadora é um sinal digital de frequência constante e o sinal
+  modulante é um sinal analógico. O ciclo de trabalho (*percentual de*
+  *tempo que sinal fica em nível lógico alto*) da portadora é variado em
+  função da amplitude do sinal modulante.
+
+  Outra característica importante do sinal de PWM é que *seu valor
+  médio* *é proporcional à amplitude do sinal modulante*, e portanto, o
+  sinal modulante pode ser recuperado utilizando apenas um filtro
+  passa-baixas. Isso é particularmente interessante para o acionamento
+  de dispositivos de potência, pois, tipicamente, a dinâmica do
+  próprio dispositivo já atua como filtro passa-baixas.
+
+  Note que apesar do sinal /PWM/ ser um sinal digital, o ciclo de
+  trabalho continua sendo uma *grandeza analógica*; portanto, um sinal
+  /PWM/ pode representar um sinal analógico com precisão infinita. Note
+  que, dependendo de como o sinal /PWM/ é gerado, *principalmente quando*
+  *o modulador é totalmente digital*, essa precisão pode ser limitada
+  devido à quantização.
+
+  Na *Galileo Gen2* os sinais /PWM/ são gerados pelo chip PCA9685 da NXP,
+  que possui *16 canais de PWM com 12 bits de resolução.* A frequência
+  dos /PWMs/ (*na Gen2 todos usam a mesma frequência*) pode ser programada
+  entre *24Hz e 1525Hz*. Cada saída do PCA9685 pode *drenar 25mA ou*
+  *fornecer 10mA*. Embora o PCA9685 possua 16 canais de /PWM/, apenas 6
+  deles estão disponíveis no conector de shield da Galileo Gen2: /pwm1
+  (IO3)/, /pwm3 (IO5), pwm5 (IO6), pwm7 (IO9) e pwm11 (IO10)/.
+
+  Os /PWMs/ são acessados no espaço do usuário através da interface
+  *sysfs exposta em* /sys/class/pwm/pwmchip0. Neste diretório existem os
+  seguintes pseudo-arquivos:
+
+  - *npwm*: O número de canais de /PWM/ suportados
+  - *export*: Exporta um canal de /PWM/
+  - *unexport*: "Desexporta" um canal de /PWM/
+  - *device/pwm_period*: período do /PWM/ em *nanosegundos*. No caso do
+    PCA9685 todos os /PWMs/ usam o mesmo período, que deve ser
+    programado neste arquivo. (Gen2)
+    
+    Os canais de /PWM são numerados de 0 a npwm-1.
+    Quando um canal de /PWM/ é exportado, será criado um diretório *pwmX*
+    dentro de /sys/class/pwm/pwmchip0, onde X é o número do canal
+    exportado. Os seguintes *arquivos* existirão no diretório
+    /sys/class/pwm/pwmchip0/pwmX:
+    
+    - *period*: Período do /PWM/ em *nanosegundos*. No caso do PCA9685 todos
+      os /PWMs/ usam o mesmo período, portanto este arquivo *não pode ser
+      escrito*. O período deve ser configurado através do arquivo
+      */sys/class/pwm/pwmchip0/device/pwm_period*, como explicado acima.
+
+    - *duty_cycle*: Duração do ciclo de trabalho do /PWM/ em
+      *nanosegundos*. Obviamente, deve ser menor que o período.
+
+    - *polarity*: Troca a polaridade do sinal de /PWM/. Funciona apenas se
+      o hardware suportar. A polaridade só pode ser trocada com o /PWM/
+      desabilitado. Os valores possíveis são as strings: "normal" ou
+      "inversed".
+
+    - *enable*: Habilita/desabilita o /PWM/. "0" desabilita, "1" habilita.
+
+*** Experimentos
