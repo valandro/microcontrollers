@@ -1589,3 +1589,28 @@
     - *enable*: Habilita/desabilita o /PWM/. "0" desabilita, "1" habilita.
 
 *** Experimentos
+    
+**** Crie um novo grupo chamado *pwm* e inclua seu usuário nesse grupo.
+
+    #+BEGIN_SRC shell
+    groupadd pwm
+    usermod -a -G pwm <username>
+    #+END_SRC
+
+    
+    
+**** Verifique o mapeamento dos pinos de GPIO da Galileo
+   
+   - Para essa etapa, utilizaremos o *pwm3* para acionarmos um LED. Esse
+     pino corresponde ao IO5 no conector de shield da Galileo Gen2.
+
+     Após verificarmos a tabela de mapeamento no link:
+     https://moodle.ece.ufrgs.br/mod/page/view.php?id=875
+
+     Podemos constatar que os pinos que devem ser configurados são
+     *gpio18 e gpio66* como saída e o pino *gpio19* como resistor de
+     pull-up.
+
+**** Criando o /script/ de inicialização
+
+     

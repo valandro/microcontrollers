@@ -32,6 +32,16 @@ This repository idea is to centralize my journey through the labs from `ENG10032
 
 ![Lab 05 - Protoboard](./img/lab05_galileo.JPG)
 
+## LAB 06
+
+- Control `PWM.
+
+![Lab 06_1 - Circuit](./img/lab06_circuit_1.png)
+
+### Fading LED circuit.
+
+![Lab 06_1 - Protoboard](./img/lab06_galileo_1.JPG)
+
 ### License
 
 MIT License. [Click here for more information.](LICENSE)
