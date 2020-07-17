@@ -1516,7 +1516,7 @@
 	   return 0;
    }
    #+END_SRC
-* LAB06 (2020-07-12)
+* LAB06 (2020-07-12 / 2020-07-16)
 ** Funcionamento das saídas PWM da Galileo
 
  - Esse laboratório tem como objetivo aprendermos como utilizar um
@@ -1612,5 +1612,144 @@
      pull-up.
 
 **** Criando o /script/ de inicialização
+* LAB07 (2020-07-16)
+** Entendendo o conversor analógico digital da Galileo
+ A Galileo possui um conversor A/D de 8 canais, dos quais 6 estão
+ disponíveis no shield da Galileo. Na Galileo Gen2 são implementados
+ pelo chip ADC108S102 da Texas Instruments, o chip está conectado
+ diretamente no Quark X1000 através do barramento SPI 0.
 
-     
+ As entradas do conversor A/D estão mapeadas nos pinos *IO14-IO19* do
+ conector de shield. Como nos outros casos, é necessário configurar os
+ pinos do conector do shield para ler as medidas corretas do conversor
+ A/D. *Note em especial, que o resistor de pull-up/pull-down deve ser*
+ *configurado em off para não interferir na medida*. Na Galileo Gen2 a
+ resolução A/D é de 10 bits, mas os dados são escalonados para 12 bits
+ para serem apresentados na interface do espaço do usuário, isso é
+ feito para manter compatibilidade do drive da Galileo Gen1.
+
+ O conversor A/D pode ser usado em dois modos: modo de disparo único e
+ modo contínuo. No modo *disparo único* é feita apenas *uma conversão* por
+ requisição, enquanto no *modo contínuo*, são feitas conversões em
+ sequência em todos canais habilitados.
+
+*** Modo de disparo único
+
+  O acesso aos canais do conversor A/D através do espaço do usuário é
+  feito através de arquivos no diretório
+  */sys/bus/iio/devices/iio:device:0:*
+  
+  - *in_voltage_raw*: Valor bruto da medida em ASCII
+
+  - *in_voltageN_scale*: Multiplicador para converter o valor bruto da
+  medida para *mV*
+
+  OBS.: Onde *N* é o número do canal do conversor A/D.
+
+*** Modo contínuo
+
+  Os dados brutos são lidos através do arquivo */dev/iio:device0:* em
+  binário. A configuração do buffer para receber os dados e dos canais
+  que serão amostrados também é feita através do diretório
+  */sys/bys/iio/devices/iio:device:0*
+
+  *- buffer/length:* Número de conjunto de amostras do buffer.
+
+  *- buffer/enable*: Habilita/desabilita as conversões no modo contínuo.
+
+  *- scan_elements/in_timestamp_en:* Habilita o timestamp de dados.
+
+  *- scan_elements/in_timestamp_index:* Índice de posição do timestamp
+  no buffer.
+
+  *- scan_elements/in_timestamp_type:* Formato com o qual o timestamp é
+  armazenado no buffer.
+
+  *- scan_elements/in_voltageN_en:* Habilita a amostragem do canal N.
+
+  *- scan_elements/in_voltageN_index:* Índice da posição do canal N no
+  buffer.
+
+  *- scan_elements/in_voltageN_type:* Formato com o qual os dados do
+  canal N serão armazenados no buffer.
+
+  *- trigger/current_trigger:* Configura o trigger a ser usado para
+     disparar as conversões.
+
+  O formato dos dados é descrito por uma string no formato:
+
+  <endianness>:<signal><precision>/<size>>><alignment>
+
+  *- endianness:* be - big endian / le - little endian.
+
+  *- signal:* Indica se o valor tem sinal (*s*) ou não (*u*).
+
+  *- precision:* Indica o número de bits com informação relevante.
+
+  *- size:* Indica o número de bits usado para armazenar o dado.
+
+  *- alignment:* Indica o alinhamento dos bits de informação.
+
+  Assim, *be:u12/16>>0* significa que os dados estão em formato big
+  endian, sem sinal, com 12 bits de informação, armazenados em 16 bits
+  e alinhados no bit 0.
+
+  Para realizar as conversões no modo contínuo, deve-se habilitar os
+  canais desejados, configurar o tamanho do buffer (número de
+  amostras) e habilitar o buffer. Os pseudo-arquivos com índices são
+  de *leitura apenas* e somente os canais habilitados são inseridos no
+  buffer.
+
+  As conversões são disparadas por um trigger. Os triggers disponíveis
+  aparecem em */sys/bus/iio/devices* quando módulo do kernel
+  correspondente é carregado. Estes módulos *não são carregados* no boot
+  da Galileo. É necessário carregá-los explicitamente com os comandos
+  *modprobe* ou *insmod*. Os triggers disponíveis na Galileo Gen2 são:
+
+  *- iio-trig-sysfs:* Totalmente baseado em software. Permite disparar
+  por software cada amostragem, como no modo de disparo único, mas
+  com uma API de modo contínuo.
+
+  *- iio-trig-hrtimer:* Baseado no temporizador HPET. Permite configurar
+  a frequência com que será feita a amostragem.
+
+  /Quando os módulos de trigger são carregaos, surgem os seguintes/
+  /arquivos no diretório/ */sys/bus/iio/devices*:
+
+  *- iio_sysfs_trigger/add_trigger*: Usado para criar um trigger do tipo
+  /iio_sysfs_trigger/, ao se escrever um número inteiro positivo no
+  arquivo.
+
+  *- iio_sysfs_trigger/remove_trigger:* Usado para remover um trigger do
+  tipo /iio_sysfs_trigger/, ao se escrever um número inteiro positivo no
+  arquivo.
+
+  *- iio_hrtimer_trigger/add_trigger:* Usado para criar um trigger do
+  tipo /iio_hrtimer_trigger/, ao se escrever um número inteiro no arquivo.
+ 
+  *- iio_hrtimer_trigger/remove_trigger:* Usado para remover um trigger
+  do tipo /iio_hrtimer_trigger/, ao ao se escrever um número inteiro
+  no arquivo.
+
+  Para cada trigger é criado um diretório */sys/bus/iio/devices/trigger<n>*, 
+  onde *<n>* é um número crescente a partir de 0. Note que <n> não é o número que
+  foi escrito no arquivo *add_trigger* para criação do trigger, mas um número
+  que é *incrementado* a cada trigger criado. O conteúdo deste diretório depende do
+  tipo do trigger:
+
+  *- name:* Nome do trigger, usado para configurar o trigger a ser usado.
+
+  *- trigger_now:* Qualquer escrita neste arquivo dispara o trigger. Só
+  existe para triggers do tipo *iio_sysfs_trigger*.
+
+  *- frequency:* Configura a frequência do trigger. Só existe para
+  triggers do tipo *iio_hrtimer_trigger*.
+
+  Quando é usado um trigger do tipo *iio_sysfs_trigger*, após a
+  habilitação do *buffer*, cada escrita no arquivo *trigger_now* realiza
+  uma amostragem. Quando é usado um trigger do tipo *iio_hrtimer_trigger*,
+  a habilitação do buffer inicia a amostragem com a frequência
+  programada no arquivo *frequency*. As conversões são paradas
+  desabilitando-se o buffer e removendo-se o trigger.
+
+** Experimentos 
