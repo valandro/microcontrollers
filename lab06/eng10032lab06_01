@@ -1,13 +1,13 @@
 #! /bin/sh
 ### BEGIN INIT INFO
-# Provides:          eng10032lab03_1
+# Provides:          eng10032lab06_1
 # Required-Start:    
 # Should-Start:      
 # Required-Stop:     
 # Default-Start:     S
 # Default-Stop:
-# Short-Description: Configures GPIO for Lab 03.
-# Description:       Configures GPIO for Lab 03.
+# Short-Description: Configures GPIO for Lab 06.
+# Description:       Configures GPIO for Lab 06.
 ### END INIT INFO
 
 boardId=`cat /sys/devices/virtual/dmi/id/board_name`

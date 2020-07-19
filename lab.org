@@ -1639,7 +1639,7 @@
   feito através de arquivos no diretório
   */sys/bus/iio/devices/iio:device:0:*
   
-  - *in_voltage_raw*: Valor bruto da medida em ASCII
+  - *in_voltageN_raw*: Valor bruto da medida em ASCII
 
   - *in_voltageN_scale*: Multiplicador para converter o valor bruto da
   medida para *mV*
@@ -1753,3 +1753,26 @@
   desabilitando-se o buffer e removendo-se o trigger.
 
 ** Experimentos 
+
+ - Criando o grupo /adc/ como super usuário na Galileo:
+
+ #+BEGIN_SRC shell
+ groupadd adc
+ #+END_SRC
+
+ - Adicionando meu usuário ao grupo
+
+ #+BEGIN_SRC shell
+ usermod -a -G adc lucas
+ #+END_SRC
+
+ - Para configurar um pino como conversor A/D devemos:
+
+ -- *Habilitar leituras/escritas nos arquivos*
+
+ -- *Desabilitar os resistores de pull-up e pull-down*
+
+ Para desabilitar os resistores de pull-up e pull-down, basta:
+
+ *Colocar o pino como direction "in"*
+

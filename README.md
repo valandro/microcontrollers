@@ -42,6 +42,10 @@ This repository idea is to centralize my journey through the labs from `ENG10032
 
 ![Lab 06_1 - Protoboard](./img/lab06_galileo_1.JPG)
 
+## LAB 07
+
+- `AD(Analogic/Digital)` conversor.
+
 ### License
 
 MIT License. [Click here for more information.](LICENSE)
