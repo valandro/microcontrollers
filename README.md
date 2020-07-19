@@ -34,7 +34,7 @@ This repository idea is to centralize my journey through the labs from `ENG10032
 
 ## LAB 06
 
-- Control `PWM.
+- Control `PWM`.
 
 ![Lab 06_1 - Circuit](./img/lab06_circuit_1.png)
 
@@ -45,6 +45,10 @@ This repository idea is to centralize my journey through the labs from `ENG10032
 ## LAB 07
 
 - `AD(Analogic/Digital)` conversor.
+
+![Lab 07_1 - Circuit 1](./img/lab07_circuit_1.png)
+
+![Lab 07_1 - Protoboard](./img/lab07_galileo_1.JPG)
 
 ### License
 
