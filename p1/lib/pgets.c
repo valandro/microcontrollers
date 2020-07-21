@@ -1,7 +1,7 @@
 /*
-  board_name.c: Returns board name identification.
+  pgets.c: Gets a string from a file, given its path.
   
-  Copyright (c) 2020 Walter Fetter Lages <w.fetter@ieee.org>
+  Copyright (c) 2016 Walter Fetter Lages <w.fetter@ieee.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,25 +23,16 @@
 */
 
 #include <fcntl.h>
-#include <string.h>
 #include <unistd.h>
 
 #include <galileo2io.h>
 
-int board_name(void)
+char *pgets(char *s,int size,const char path[])
 {
 	int fd;
-	char s[20];
-	int n;
 	
-	fd = open("/sys/devices/virtual/dmi/id/board_name", O_RDONLY);
-	n = read(fd, s, sizeof s);
+	if((fd=open(path, O_RDONLY)) ==-1) return NULL;
+	read(fd, s, size);
 	close(fd);
-	s[n-1] = '\0'; /* Discards new line */
-
-	if(strncmp(s, "Galileo", sizeof s) == 0)
-		return BOARD_GALILEO_GEN1;
-	else if(strncmp(s,"GalileoGen2",sizeof s) == 0)
-		return BOARD_GALILEO_GEN2;
-        else return BOARD_UNKNOWN;
+	return s;
 }

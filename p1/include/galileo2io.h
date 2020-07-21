@@ -1,7 +1,7 @@
 /*
-  board_name.c: Returns board name identification.
+  galileo2io.h: Helper functions for Galileo I/O
   
-  Copyright (c) 2020 Walter Fetter Lages <w.fetter@ieee.org>
+  Copyright (c) 2016, 2020 Walter Fetter Lages <w.fetter@ieee.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,26 +22,27 @@
 
 */
 
-#include <fcntl.h>
-#include <string.h>
-#include <unistd.h>
+#ifndef GALILEO2IO_H
+#define GALILEO2IO_H
 
-#include <galileo2io.h>
-
-int board_name(void)
+#ifdef __cplusplus
+extern "C"
 {
-	int fd;
-	char s[20];
-	int n;
-	
-	fd = open("/sys/devices/virtual/dmi/id/board_name", O_RDONLY);
-	n = read(fd, s, sizeof s);
-	close(fd);
-	s[n-1] = '\0'; /* Discards new line */
+#endif
 
-	if(strncmp(s, "Galileo", sizeof s) == 0)
-		return BOARD_GALILEO_GEN1;
-	else if(strncmp(s,"GalileoGen2",sizeof s) == 0)
-		return BOARD_GALILEO_GEN2;
-        else return BOARD_UNKNOWN;
-}
+enum BOARD_NAME
+{
+	BOARD_GALILEO_GEN1=1,
+	BOARD_GALILEO_GEN2=2,
+	BOARD_UNKNOWN=-1
+};
+
+extern int board_name(void);
+extern char * pgets(char *s,int size,const char path[]);
+extern int pputs(const char path[],const char s[]);
+
+#ifdef __cplusplus
+};
+#endif
+
+#endif

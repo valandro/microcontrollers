@@ -1,5 +1,5 @@
-TARGET=utils.a
-SRCS=board_name.c gpio_read.c gpio_write.c
+TARGET=libgalileo2.a
+SRCS=gpio_read.c gpio_write.c pgets.c pputs.c board_name.c
 
 FLAGS=-O2 -Wall -MMD
 INCLUDE=-I. -I../include
