@@ -1,7 +1,7 @@
 TARGET=program
 SRCS=$(TARGET).c
 
-FLAGS=-Wall -g -MMD
+FLAGS=-O2 -Wall -g -MMD
 INCLUDE=-I. -I../include
 LIBDIR=-L../lib
 LIBS=-lgalileo2

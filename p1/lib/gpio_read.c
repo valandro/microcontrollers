@@ -4,6 +4,11 @@
 
 #include <utils.h>
 
+/**
+	Read char value for a given GPIO pin
+	@param pathc: the path to GPIO value file
+	@return: the char value
+**/
 char gpio_read(const char path[]) {
     char value;
     int gpio;
