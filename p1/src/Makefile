@@ -1,4 +1,4 @@
-TARGET=base
+TARGET=program
 SRCS=$(TARGET).c
 
 FLAGS=-Wall -g -MMD

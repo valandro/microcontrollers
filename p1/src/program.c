@@ -17,8 +17,6 @@ int main(int argc,char * argv[]) {
         return -1;
     }
 
-
-    printf("Chegou aqui");
     for(;;) {
         button = gpio_read("/sys/class/gpio/gpio13/value");
         printf ("Read: %c\n", button);
