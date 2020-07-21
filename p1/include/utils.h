@@ -15,7 +15,7 @@ enum BOARD_NAME
 
 extern int board_name(void);
 extern char gpio_read(const char path[]);
-extern int gpio_write(const char path[], char value);
+extern int gpio_write(const char path[], const char value);
 
 #ifdef __cplusplus
 };
