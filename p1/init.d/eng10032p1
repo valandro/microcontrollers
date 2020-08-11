@@ -132,6 +132,13 @@ case "$1" in
 				### No pull up or pull down
 				echo -n "in" > /sys/class/gpio/gpio19/direction
 
+
+				# Pin Mux 1 GPIO  
+				if [ ! -d /sys/class/gpio/gpio66 ] ; then
+					echo -n "66" > /sys/class/gpio/export
+				fi
+				echo -n "1" > /sys/class/gpio/gpio66/value
+
 				# PWM3 configuration - Linux
 				if [ ! -d /sys/class/pwm/pwmchip0/pwm3 ] ; then
 						echo -n "3" > /sys/class/pwm/pwmchip0/export

@@ -1,0 +1,1 @@
+spitx.o: spitx.c
